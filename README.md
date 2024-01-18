@@ -561,3 +561,55 @@
 #  - IP Firewall --> Mangle --> Añadir --> Chain: forward; Connection Mark: YOUTUBE_connection; Action: mark packet; New Packet Mark: YOUTUBE_packet, Passthrough: □ 
 #  - Queues --> Queue Tree --> Añadir --> Name: YOUTUBE; Parent: ether3; Packet Marks: YOUTUBE_packet; Queue Type: default-small; Limit At: 500k; Max Limit: 500k
 #  - IP Firewall --> Address Lists --> Añadir/Ver --> Name: YOUTUBE_address; Address: IP_MV_Red_Privada ]
+#Crear MV en red de proyecto y acceso con claves SSH en Openstack:
+#[ Crear el router ]
+#[ Crear la red y subred habilitando la puerta de enlace y el DHCP ]
+#[ Crear el grupo de seguridad de SSH ] 
+#[ Crear la MV y asignar IP flotante] 
+#[ Generar las claves asimétricas del usuario: $ ssh-keygen -m PEM -t rsa ] 
+#[ Copiar la clave pública en authorized_keys y la privada a nuestro dispositivo ] 
+#[ Desactivar el acceso con contraseña en el fichero /etc/ssh/sshd_config ] 
+#[ Reiniciar el servicio: $ sudo /etc/init.d/ssh restart ]
+#[ Acceder a la MV con SSH: $ ssh -i ubuntu-acq911.pem ubuntu@IP_Flotante ]
+
+#Crear MV en red de proyecto y servidor HTTP en raid10:
+#[ Crear el router ]
+#[ Crear la red y subred habilitando la puerta de enlace y el DHCP ]
+#[ Crear el grupo de seguridad de HTTP ]
+#[ Crear la MV y asignar IP flotante ]
+#[ Crear el volumen y asignarlo a la MV ]
+#[ Particionar tanto como necesite el raid: $ fdisk /dev/vdb (n/p/ / /+1G/t/fd) ]
+#[ Dar formato a cada partición: $ sudo mkfs -t ext4 /dev/vdbX ]
+#[ Instalar mdadm y librerías: $ sudo apt install mdam
+#                              $ sudo modprobe linear multipath raid10 ]
+#[ Crear un nodo de archivos: $ sudo mknod /dev/md0 b 9 0 ]
+#[ Crear el raid: $ sudo mdadm --create /dev/md0 --level=raid10 --raid devices=4 /dev/dvb1 /dev/dvb2 /dev/dvb3 /dev/dvb4 ]
+#[ Mostrar el estado del raid: $ cat /proc/mdstat ]
+#[ Dar formato al raid creado: $ sudo mkfs.ext4 /dev/md0 ]
+#[ Montar el raid en el punto de montaje: $ sudo mount /dev/md0 /mnt ]
+#[ Obtener el UUID del raid: $ blkid /dev/md0 ]
+#[ Montar de manera persistente el raid en el fichero /etc/fstab:
+#  UUID=109d5dbf-a0f2-4f91-81fd-3608e7c8c5a7 /mnt ext4 defaults 0 0 ]
+#[ Reiniciar la MV para comprobar el funcionamiento: $ reboot ]
+#[ Actualizar los paquetes y los repositorios: $ sudo apt update
+#		           		       $ sudo apt upgrade ]
+#[ Instalar apache: $ sudo apt install apache2 ]
+#[ Comprobar el estado de apache: $ sudo systemctl status apache2 ]
+#[ Realizar una copia del index y del fichero de configuración de apache ]
+#[ Modificar el index del servidor web: $ echo “Página web diseñada por acq911” > /var/www/html/index.html ]
+#[ Copiar el index al punto de montaje: $ cp /var/www/html/index.html /mnt ]
+#[ Cambiar directorio base en /etc/apache2/sites-available/000-default.conf a /mnt y añadir: <Directory /mnt>
+#									                     Require all granted
+#									                     </Directory> ]
+#[ Sustituir el fichero de configuración: $ sudo a2dissite 000-default && sudo a2ensite nuevo-sitio ]
+#[ Reiniciar el servicio de apache: $ sudo systemctl reload apache2 ]
+
+#Crear MV en redes distintas y con acceso SSH por contraseña en Google Cloud:
+#[ Crear la red y subred de laboratorio seleccionando todas las redes firewall ]
+#[ Crear la MV examen-acq911 y conectarla a la red default y a laboratorio ] 
+#[ Crear la MV privada-acq911 y conectarla a la red laboratorio ]
+#[ Crear el usuario gerente en ambas máquinas: $ adduser gerente ]
+#[ Activar el acceso con contraseña en el fichero /etc/ssh/sshd_config ]
+#[ Reiniciar el servicio: $ /etc/init.d/ssh restart ] 
+#[ Acceder a examen-acq911 por SSH: $ ssh gerente@IP_Flotante ]
+#[ Acceder desde examen-acq911 a privada-acq911: $ ssh gerente@IP_Flotante ]
